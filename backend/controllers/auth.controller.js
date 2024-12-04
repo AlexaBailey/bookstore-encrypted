@@ -57,7 +57,7 @@ export const registerLibrarian = async (req, res) => {
     };
 
     users.push(newUser);
-    await saveAndEncryptData("users.txt", users, 5);
+    await saveAndEncryptData("users.txt", users, ENCRYPTION_KEY);
 
     const newLibrarianId = librarians.length + 1;
     const newLibrarian = {
@@ -72,7 +72,7 @@ export const registerLibrarian = async (req, res) => {
 
     librarians.push(newLibrarian);
 
-    await saveAndEncryptData("librarians.txt", librarians, 5);
+    await saveAndEncryptData("librarians.txt", librarians, ENCRYPTION_KEY);
 
     const decryptedSchedule = await decryptFileAndValidate(
       "librarian_schedule.txt",

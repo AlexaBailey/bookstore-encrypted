@@ -52,40 +52,48 @@ export function lzssDecompress(compressedData) {
 
   return result.join("");
 }
-export function offsetCipherEncrypt(data, key) {
+
+export function offsetCipherEncrypt(data, keyWord) {
+  const keyShifts = keyWord.split("").map((char) => char.charCodeAt(0));
+  const keyLength = keyShifts.length;
+
   return data
     .split("")
     .map((char, index) => {
-      const shift = (key + index) % 256;
+      const shift = keyShifts[index % keyLength] % 256;
       return String.fromCharCode((char.charCodeAt(0) + shift) % 256);
     })
     .join("");
 }
 
-export function offsetCipherDecrypt(data, key) {
+export function offsetCipherDecrypt(data, keyWord) {
+  const keyShifts = keyWord.split("").map((char) => char.charCodeAt(0));
+  const keyLength = keyShifts.length;
+
   return data
     .split("")
     .map((char, index) => {
-      const shift = (key + index) % 256;
+      const shift = keyShifts[index % keyLength] % 256;
       return String.fromCharCode((char.charCodeAt(0) - shift + 256) % 256);
     })
     .join("");
 }
 
-export async function saveEncryptedData(filename, data, key) {
+export async function saveEncryptedData(filename, data, keyWord) {
   try {
     const compressedData = lzssCompress(JSON.stringify(data));
-    const encryptedData = offsetCipherEncrypt(compressedData, key);
-    await fs.promises.writeFile(filename, encryptedData, "utf-8");
+    const encryptedData = offsetCipherEncrypt(compressedData, keyWord);
+    await fs.writeFile(filename, encryptedData, "utf-8");
+  } catch (error) {
     console.error("Error saving encrypted data:", error);
     throw error;
-  } catch (err) {}
+  }
 }
 
-export async function readEncryptedData(filename, key) {
+export async function readEncryptedData(filename, keyWord) {
   try {
-    const encryptedData = await fs.promises.readFile(filename, "utf-8");
-    const compressedData = offsetCipherDecrypt(encryptedData, key);
+    const encryptedData = await fs.readFile(filename, "utf-8");
+    const compressedData = offsetCipherDecrypt(encryptedData, keyWord);
     const decompressedData = lzssDecompress(compressedData);
     return JSON.parse(decompressedData);
   } catch (error) {
@@ -94,11 +102,11 @@ export async function readEncryptedData(filename, key) {
   }
 }
 
-export const decryptFileAndValidate = async (filename, key) => {
+export const decryptFileAndValidate = async (filename, keyWord) => {
   try {
     const encryptedData = await fs.readFile(`./data/${filename}`, "utf-8");
-    const compressedData = JSON.parse(offsetCipherDecrypt(encryptedData, key));
-    const plainData = lzssDecompress(compressedData);
+    const compressedData = offsetCipherDecrypt(encryptedData, keyWord);
+    const plainData = lzssDecompress(JSON.parse(compressedData));
     return plainData;
   } catch (error) {
     console.error(`Error decrypting file ${filename}:`, error.message);
@@ -106,32 +114,29 @@ export const decryptFileAndValidate = async (filename, key) => {
   }
 };
 
-export const encryptFile = async (filename, key) => {
+export const encryptFile = async (filename, keyWord) => {
   try {
-    console.log(`Encrypting file: ${filename}`);
     const plainData = await fs.readFile(`./data/${filename}`, "utf-8");
     const compressedData = lzssCompress(plainData);
     const encryptedData = offsetCipherEncrypt(
       JSON.stringify(compressedData),
-      key
+      keyWord
     );
     await fs.writeFile(`./data/${filename}`, encryptedData, "utf-8");
-    console.log(`File encrypted successfully: ${filename}`);
   } catch (error) {
     console.error(`Error encrypting file ${filename}:`, error.message);
   }
 };
-export const saveAndEncryptData = async (filename, data, key) => {
+
+export const saveAndEncryptData = async (filename, data, keyWord) => {
   try {
-    console.log(`Encrypting data: ${data}`);
     const plainData = convertJsonToTxt(data);
     const compressedData = lzssCompress(plainData);
     const encryptedData = offsetCipherEncrypt(
       JSON.stringify(compressedData),
-      key
+      keyWord
     );
     await fs.writeFile(`./data/${filename}`, encryptedData, "utf-8");
-    console.log(`File encrypted successfully: ${filename}`);
   } catch (error) {
     console.error(`Error encrypting file ${filename}:`, error.message);
   }

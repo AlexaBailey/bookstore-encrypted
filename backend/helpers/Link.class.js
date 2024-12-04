@@ -1,6 +1,6 @@
 import { readTxtAsJson } from "../helpers/convert.js";
 import { decryptFileAndValidate } from "./encrypt.js";
-const ENCRYPTION_KEY = 5;
+export const ENCRYPTION_KEY = "HELLO";
 
 class Link {
   constructor(link) {

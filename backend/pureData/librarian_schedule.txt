@@ -1,0 +1,3 @@
+librarianId,schedule
+${librarians/1/id},Tuesday|Wednesday
+${librarians/2/id},Monday|Tuesday|Friday

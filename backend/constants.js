@@ -1,1 +1,1 @@
-export const ENCRYPTION_KEY = 5;
+export const ENCRYPTION_KEY = "HELLO";
