@@ -1,8 +1,13 @@
 import bcrypt from "bcrypt";
-import _ from "lodash";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { readTxtFileAsJson, saveJsonToTxtFile } from "../helpers/convert.js";
+import { readTxtAsJson } from "../helpers/convert.js";
+import Link from "../helpers/Link.class.js";
+import {
+  decryptFileAndValidate,
+  saveAndEncryptData,
+} from "../helpers/encrypt.js";
+import { ENCRYPTION_KEY } from "../constants.js";
 
 dotenv.config();
 
@@ -27,50 +32,65 @@ export const registerLibrarian = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const decryptedUsers = await decryptFileAndValidate(
+      "users.txt",
+      ENCRYPTION_KEY
+    );
+    const users = await readTxtAsJson(decryptedUsers);
 
-    const librarians = await readTxtFileAsJson("librarians.txt");
-    const users = await readTxtFileAsJson("users.txt");
+    const decryptedLibrarians = await decryptFileAndValidate(
+      "librarians.txt",
+      ENCRYPTION_KEY
+    );
+    const librarians = await readTxtAsJson(decryptedLibrarians);
 
-    if (_.find(users, { username })) {
+    if (users.some((user) => user.username === username)) {
       return res.status(400).json({ message: "Username already exists." });
     }
 
-    const newLibrarianId = librarians.length
-      ? Number(_.maxBy(librarians, "id").id) + 1
-      : 1;
-    const newUserId = users.length ? Number(_.maxBy(users, "id").id) + 1 : 1;
-
-    const newLibrarian = {
-      id: newLibrarianId.toString(),
-      name,
-      surname,
-      section,
-      experience,
-      userId: newUserId.toString(),
-    };
-
+    const newUserId = users.length + 1;
     const newUser = {
-      id: newUserId.toString(),
+      rowNumber: newUserId,
+      id: newUserId,
       username,
       password: hashedPassword,
     };
 
-    const updatedLibrarians = [...librarians, newLibrarian];
-    await saveJsonToTxtFile("librarians.txt", updatedLibrarians);
+    users.push(newUser);
+    await saveAndEncryptData("users.txt", users, 5);
 
-    const updatedUsers = [...users, newUser];
-    await saveJsonToTxtFile("users.txt", updatedUsers);
+    const newLibrarianId = librarians.length + 1;
+    const newLibrarian = {
+      rowNumber: newLibrarianId,
+      id: newLibrarianId,
+      name,
+      surname,
+      section,
+      experience,
+      userId: Link.formatLink("users", newUserId),
+    };
 
-    const librarianSchedules = await readTxtFileAsJson(
-      "librarian_schedule.txt"
+    librarians.push(newLibrarian);
+
+    await saveAndEncryptData("librarians.txt", librarians, 5);
+
+    const decryptedSchedule = await decryptFileAndValidate(
+      "librarian_schedule.txt",
+      ENCRYPTION_KEY
     );
+    const librarianSchedules = await readTxtAsJson(decryptedSchedule);
+
     const newSchedule = {
-      librarianId: newLibrarianId.toString(),
+      librarianId: Link.formatLink("librarians", newLibrarianId),
       schedule: Array.isArray(schedule) ? schedule.join("|") : schedule,
     };
 
-    const updatedSchedules = [...librarianSchedules, newSchedule];
-    await saveJsonToTxtFile("librarian_schedule.txt", updatedSchedules);
+    librarianSchedules.push(newSchedule);
+    await saveAndEncryptData(
+      "librarian_schedule.txt",
+      librarianSchedules,
+      ENCRYPTION_KEY
+    );
 
     res.status(201).json({ message: "Librarian registered successfully." });
   } catch (error) {
@@ -88,30 +108,41 @@ export const loginLibrarian = async (req, res) => {
         .status(400)
         .json({ message: "Username and password are required." });
     }
+    const decryptedUsers = await decryptFileAndValidate(
+      "users.txt",
+      ENCRYPTION_KEY
+    );
+    const users = await readTxtAsJson(decryptedUsers);
 
-    const users = await readTxtFileAsJson("users.txt");
-    const librarians = await readTxtFileAsJson("librarians.txt");
+    const userRow = users.find((user) => user.username === username);
 
-    const user = users.find((u) => u.username === username);
-
-    if (!user) {
+    if (!userRow) {
       return res.status(401).json({ message: "Invalid username or password." });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
+    const user = await Link.formatLinkById("users", userRow.id);
+    const isPasswordValid = await bcrypt.compare(password, userRow.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid username or password." });
     }
+    const decryptedLibrarians = await decryptFileAndValidate(
+      "librarians.txt",
+      ENCRYPTION_KEY
+    );
+    const librarians = await readTxtAsJson(decryptedLibrarians);
+    const librarianRow = librarians.find((l) => l.userId === user);
 
-    const librarian = librarians.find((l) => l.userId === user.id);
-
-    if (!librarian) {
+    if (!librarianRow) {
       return res.status(404).json({ message: "Librarian details not found." });
     }
-
     const token = jwt.sign(
-      { id: librarian.id, userId: librarian.userId },
+      {
+        user: {
+          id: librarianRow.id,
+          userId: user,
+          rowNumber: librarianRow.rowNumber,
+        },
+      },
       JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -120,14 +151,16 @@ export const loginLibrarian = async (req, res) => {
       message: "Login successful.",
       token,
       librarian: {
-        id: librarian.id,
-        name: librarian.name,
-        surname: librarian.surname,
-        section: librarian.section,
-        experience: librarian.experience,
+        id: librarianRow.id,
+        rowNumber: librarianRow.rowNumber,
+        name: librarianRow.name,
+        surname: librarianRow.surname,
+        section: librarianRow.section,
+        experience: librarianRow.experience,
       },
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error logging in." });
   }
 };

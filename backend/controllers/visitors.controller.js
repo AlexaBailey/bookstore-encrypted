@@ -1,10 +1,16 @@
-import { readTxtFileAsJson } from "../helpers/convert.js";
+import { readTxtAsJson } from "../helpers/convert.js";
+import { decryptFileAndValidate } from "../helpers/encrypt.js";
+import { ENCRYPTION_KEY } from "../constants.js";
 
 export const getVisitors = async (req, res) => {
   const { query } = req.query;
   try {
-    const visitors = await readTxtFileAsJson("visitors.txt");
-    
+    const decryptedVisitors = await decryptFileAndValidate(
+      "visitors.txt",
+      ENCRYPTION_KEY
+    );
+    const visitors = await readTxtAsJson(decryptedVisitors);
+
     const filteredVisitors = query
       ? visitors.filter((visitor) =>
           visitor.name.toLowerCase().includes(query.toLowerCase())

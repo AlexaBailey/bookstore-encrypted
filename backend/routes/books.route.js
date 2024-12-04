@@ -6,7 +6,7 @@ import {
   getCurrentBorrowedBooks,
   getAllBorrowedBooks,
   getVisitorBorrowHistory,
-} from "../controllers/books.controller.js";
+} from "../controllers/books.encrypt.controller.js";
 
 const router = express.Router();
 
