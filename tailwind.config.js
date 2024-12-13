@@ -14,6 +14,7 @@ export default {
         hero: "#b8e506",
         grey: "#999",
         myblack: "#121212",
+        myred: "#4A1D96",
       },
       fontFamily: {
         Murs: "Murs",

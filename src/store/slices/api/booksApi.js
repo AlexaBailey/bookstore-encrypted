@@ -10,7 +10,7 @@ export const booksApi = createApi({
     }),
     fetchLazyBooks: builder.query({
       query: (searchQuery) => `/books?query=${encodeURIComponent(searchQuery)}`,
-      keepUnusedDataFor: 0, // Disable caching
+      keepUnusedDataFor: 0,
     }),
     fetchBorrowedBooks: builder.query({
       query: () => "/books/borrowed-books",
@@ -37,6 +37,20 @@ export const booksApi = createApi({
         },
       }),
     }),
+    downloadBorrowedBookRecord: builder.query({
+      query: (recordId) => ({
+        url: `/books/download/${recordId}`,
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    downloadBorrowedBooksArchive: builder.query({
+      query: () => ({
+        url: "/books/archive",
+        method: "GET",
+        responseHandler: (response) => response.blob(), // Handle response as a Blob
+      }),
+    }),
 
     returnBook: builder.mutation({
       query: ({ recordId, returnDate }) => ({
@@ -58,4 +72,6 @@ export const {
   useBorrowBookMutation,
   useReturnBookMutation,
   useLazyFetchUserBorrowHistoryQuery,
+  useLazyDownloadBorrowedBookRecordQuery,
+  useLazyDownloadBorrowedBooksArchiveQuery,
 } = booksApi;

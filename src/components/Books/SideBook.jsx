@@ -54,7 +54,6 @@ export default function SideBook({ open, book, setOpen }) {
           <p className="font-bold text-white">{book.pages}</p>
           <p>Pages</p>
         </div>
-       
       </div>
 
       <p className="text-sm text-gray-300 leading-relaxed mb-6">
@@ -63,7 +62,7 @@ export default function SideBook({ open, book, setOpen }) {
 
       <button
         className="w-full bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-        onClick={() => alert("Read Now!")}
+        onClick={() => toast.success("Read Now!")}
       >
         Read Now
       </button>

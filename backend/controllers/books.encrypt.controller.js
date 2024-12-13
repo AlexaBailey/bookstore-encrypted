@@ -248,6 +248,110 @@ export const getCurrentBorrowedBooks = async (req, res) => {
   }
 };
 
+import { PassThrough } from "stream";
+import { createGzip } from "zlib";
+
+export const downloadBorrowedBooksArchive = async (req, res) => {
+  try {
+    const decryptedBorrowedBooks = await decryptFileAndValidate(
+      "borrowed_books.txt",
+      ENCRYPTION_KEY
+    );
+    const borrowedBooks = await readTxtAsJson(decryptedBorrowedBooks);
+
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="borrowed_books_archive.tar.gz"'
+    );
+
+    const passThrough = new PassThrough();
+    const gzip = createGzip();
+
+    passThrough.pipe(gzip).pipe(res);
+
+    for (const record of borrowedBooks) {
+      const book = await new Link(record.book).resolveLink();
+      const visitor = await new Link(record.visitor).resolveLink();
+      const librarian = await new Link(record.librarian).resolveLink();
+
+      const recordDetails = {
+        RecordID: record.id,
+        BookTitle: book.title,
+        BookAuthor: book.author,
+        VisitorName: visitor.name,
+        LibrarianName: librarian.name,
+        BorrowDate: record.borrow_date,
+        ReturnDate: record.return_date || "Not returned yet",
+      };
+
+      const fileContent = Object.entries(recordDetails)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join("\n");
+
+      passThrough.write(
+        `--- borrowed_book_${record.id}.txt ---\n${fileContent}\n\n`
+      );
+    }
+
+    passThrough.end();
+  } catch (error) {
+    console.error("Error generating archive:", error);
+    res
+      .status(500)
+      .json({ message: "Error generating archive.", error: error.message });
+  }
+};
+
+export const downloadBorrowedBookRecord = async (req, res) => {
+  const { recordId } = req.params;
+  console.log(recordId);
+
+  try {
+    const decryptedBorrowedBooks = await decryptFileAndValidate(
+      "borrowed_books.txt",
+      ENCRYPTION_KEY
+    );
+    const borrowedBooks = await readTxtAsJson(decryptedBorrowedBooks);
+
+    const record = borrowedBooks.find((entry) => entry.id === recordId);
+
+    if (!record) {
+      return res.status(404).json({ message: "Borrow record not found." });
+    }
+
+    const book = await new Link(record.book).resolveLink();
+    const visitor = await new Link(record.visitor).resolveLink();
+    const librarian = await new Link(record.librarian).resolveLink();
+
+    const recordDetails = {
+      RecordID: record.id,
+      BookTitle: book.title,
+      BookAuthor: book.author,
+      VisitorName: visitor.name,
+      LibrarianName: librarian.name,
+      BorrowDate: record.borrow_date,
+      ReturnDate: record.return_date || "Not returned yet",
+    };
+
+    const fileContent = Object.entries(recordDetails)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="borrowed_book_record_${recordId}.txt"`
+    );
+    res.status(200).send(fileContent);
+  } catch (error) {
+    console.error("Error generating file:", error);
+    res
+      .status(500)
+      .json({ message: "Error generating file.", error: error.message });
+  }
+};
+
 export const getVisitorBorrowHistory = async (req, res) => {
   const { name } = req.params;
 

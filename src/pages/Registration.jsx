@@ -96,7 +96,7 @@ const RegistrationPage = () => {
           className="w-full p-2 border rounded"
           placeholder="Enter username"
         />
-        <p className="text-red-500 text-sm">{errors.username?.message}</p>
+        <p className="text-myred text-sm">{errors.username?.message}</p>
       </div>
 
       <div>
@@ -107,7 +107,7 @@ const RegistrationPage = () => {
           className="w-full p-2 border rounded"
           placeholder="Enter password"
         />
-        <p className="text-red-500 text-sm">{errors.password?.message}</p>
+        <p className="text-myred text-sm">{errors.password?.message}</p>
       </div>
 
       <div>
@@ -117,7 +117,7 @@ const RegistrationPage = () => {
           className="w-full p-2 border rounded"
           placeholder="Enter name"
         />
-        <p className="text-red-500 text-sm">{errors.name?.message}</p>
+        <p className="text-myred text-sm">{errors.name?.message}</p>
       </div>
 
       <div>
@@ -127,7 +127,7 @@ const RegistrationPage = () => {
           className="w-full p-2 border rounded"
           placeholder="Enter surname"
         />
-        <p className="text-red-500 text-sm">{errors.surname?.message}</p>
+        <p className="text-myred text-sm">{errors.surname?.message}</p>
       </div>
 
       <div>
@@ -138,7 +138,7 @@ const RegistrationPage = () => {
           className="w-full p-2 border rounded"
           placeholder="Enter years of experience"
         />
-        <p className="text-red-500 text-sm">{errors.experience?.message}</p>
+        <p className="text-myred text-sm">{errors.experience?.message}</p>
       </div>
 
       <div>
@@ -154,7 +154,7 @@ const RegistrationPage = () => {
             {day}
           </label>
         ))}
-        <p className="text-red-500 text-sm">{errors.schedule?.message}</p>
+        <p className="text-myred text-sm">{errors.schedule?.message}</p>
       </div>
 
       <div>
@@ -175,13 +175,13 @@ const RegistrationPage = () => {
             </button>
           ))}
         </div>
-        <p className="text-red-500 text-sm">{errors.section?.message}</p>
+        <p className="text-myred text-sm">{errors.section?.message}</p>
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-green-600 text-white py-2 px-4 rounded"
+        className="w-full bg-blue-800 text-white py-2 px-4 rounded"
       >
         {isLoading ? "Registering..." : "Register"}
       </button>

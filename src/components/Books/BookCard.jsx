@@ -12,7 +12,10 @@ export default function BookCard({ book }) {
         className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition"
       >
         <img
-          src={book.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz6rOSJMcUox8Gm9tbNe-BoULXlvT3v5E6sA&s"}
+          src={
+            book.image ||
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz6rOSJMcUox8Gm9tbNe-BoULXlvT3v5E6sA&s"
+          }
           alt={book.title}
           className="rounded-md mb-4 w-full"
         />

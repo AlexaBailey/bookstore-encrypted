@@ -12,6 +12,13 @@ import RegistrationPage from "./pages/Registration";
 import LoginPage from "./pages/Login";
 import BooksGrid from "./components/Books/BookGrid";
 import VisitorsPage from "./pages/Visitors";
+import StudentsPage from "./pages/StudentsPage";
+import GroupsPage from "./pages/GroupsPage";
+import SubjectsPage from "./pages/SubjectsPage";
+import ProfessorsPage from "./pages/ProfessorsPage";
+import GroupPage from "./pages/GroupPage";
+import ProfessorPage from "./pages/ProfessorPage";
+import EvaluationPage from "./pages/EvaluationPage";
 import { setAuthState } from "./store/slices/auth";
 
 import { useEffect, useState } from "react";
@@ -21,6 +28,7 @@ import React from "react";
 import { ToastContainer } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
+
 const PrivateRoute = ({ children }) => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [authInitialized, setAuthInitialized] = useState(false);
@@ -81,6 +89,11 @@ export default function App() {
         ></div>
         <Navbar />
         <Routes>
+          {/* Auth Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegistrationPage />} />
+
+          {/* Private Routes */}
           <Route
             path="/dashboard"
             element={
@@ -89,8 +102,6 @@ export default function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegistrationPage />} />
           <Route
             path="/history"
             element={
@@ -115,6 +126,66 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* New Pages */}
+          <Route
+            path="/students"
+            element={
+              <PrivateRoute>
+                <StudentsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/groups"
+            element={
+              <PrivateRoute>
+                <GroupsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/groups/:id"
+            element={
+              <PrivateRoute>
+                <GroupPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/professors"
+            element={
+              <PrivateRoute>
+                <ProfessorsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/professors/:id"
+            element={
+              <PrivateRoute>
+                <ProfessorPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/subjects"
+            element={
+              <PrivateRoute>
+                <SubjectsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/evaluation/:id"
+            element={
+              <PrivateRoute>
+                <EvaluationPage />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Redirect */}
           <Route path="*" element={<Navigate to="/history" />} />
         </Routes>
       </div>

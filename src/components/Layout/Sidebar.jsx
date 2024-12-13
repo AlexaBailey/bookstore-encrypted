@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import { FiBarChart, FiChevronsRight, FiHome, FiUsers } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { RiFileHistoryLine } from "react-icons/ri";
-import { PiStudent } from "react-icons/pi";
+import { RiFileHistoryLine, RiGroup2Fill } from "react-icons/ri";
+import {
+  PiChalkboardTeacher,
+  PiPersonArmsSpreadLight,
+  PiStudent,
+  PiStudentDuotone,
+} from "react-icons/pi";
 
 const Sidebar = ({ open, setOpen }) => {
   return (
@@ -42,6 +47,24 @@ const Sidebar = ({ open, setOpen }) => {
             title="Visitors"
             open={open}
             path="/visitors"
+          />
+          <Option
+            Icon={PiPersonArmsSpreadLight}
+            title="Students"
+            open={open}
+            path="/students"
+          />
+          <Option
+            Icon={PiChalkboardTeacher}
+            title="Professors"
+            open={open}
+            path="/professors"
+          />
+          <Option
+            Icon={RiGroup2Fill}
+            title="Groups"
+            open={open}
+            path="/groups"
           />
         </div>
 
@@ -94,8 +117,10 @@ const TitleSection = ({ open }) => {
         <div
           className={`flex items-center justify-center w-10 h-10 rounded-md bg-grey flex-shrink-0`}
         >
-          <img src="https://masterpiecer-images.s3.yandex.net/a269bd637ca511ee91cc7a2f0d1382ba:upscaled" className="h-6 w-6"/>
-         
+          <img
+            src="https://masterpiecer-images.s3.yandex.net/a269bd637ca511ee91cc7a2f0d1382ba:upscaled"
+            className="h-6 w-6"
+          />
         </div>
         {open && (
           <motion.div

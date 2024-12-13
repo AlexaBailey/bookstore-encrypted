@@ -67,7 +67,7 @@ const LoginPage = () => {
               className="w-full p-2 border rounded"
               placeholder="Enter username"
             />
-            <p className="text-red-500 text-sm">{errors.username?.message}</p>
+            <p className="text-myred text-sm">{errors.username?.message}</p>
           </div>
 
           <div>
@@ -78,7 +78,7 @@ const LoginPage = () => {
               className="w-full p-2 border rounded"
               placeholder="Enter password"
             />
-            <p className="text-red-500 text-sm">{errors.password?.message}</p>
+            <p className="text-myred text-sm">{errors.password?.message}</p>
           </div>
 
           <button
