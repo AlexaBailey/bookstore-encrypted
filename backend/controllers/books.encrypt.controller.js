@@ -5,6 +5,7 @@ import {
   saveAndEncryptData,
 } from "../helpers/encrypt.js";
 import { ENCRYPTION_KEY } from "../constants.js";
+import archiver from "archiver";
 
 export const getBooks = async (req, res) => {
   const { limit = 10, page = 0, category, query = "" } = req.query;
@@ -259,17 +260,17 @@ export const downloadBorrowedBooksArchive = async (req, res) => {
     );
     const borrowedBooks = await readTxtAsJson(decryptedBorrowedBooks);
 
-    res.setHeader("Content-Type", "application/octet-stream");
+    // Set headers for ZIP file download
+    res.setHeader("Content-Type", "application/zip");
     res.setHeader(
       "Content-Disposition",
-      'attachment; filename="borrowed_books_archive.tar.gz"'
+      'attachment; filename="borrowed_books_archive.zip"'
     );
 
-    const passThrough = new PassThrough();
-    const gzip = createGzip();
+    const archive = archiver("zip", { zlib: { level: 9 } }); // Use maximum compression
+    archive.pipe(res); // Stream ZIP file to response
 
-    passThrough.pipe(gzip).pipe(res);
-
+    // Add a file per record
     for (const record of borrowedBooks) {
       const book = await new Link(record.book).resolveLink();
       const visitor = await new Link(record.visitor).resolveLink();
@@ -289,17 +290,17 @@ export const downloadBorrowedBooksArchive = async (req, res) => {
         .map(([key, value]) => `${key}: ${value}`)
         .join("\n");
 
-      passThrough.write(
-        `--- borrowed_book_${record.id}.txt ---\n${fileContent}\n\n`
-      );
+      // Append file to the archive
+      archive.append(fileContent, { name: `borrowed_book_${record.id}.txt` });
     }
 
-    passThrough.end();
+    // Finalize the ZIP archive
+    await archive.finalize();
   } catch (error) {
-    console.error("Error generating archive:", error);
+    console.error("Error generating ZIP archive:", error);
     res
       .status(500)
-      .json({ message: "Error generating archive.", error: error.message });
+      .json({ message: "Error generating ZIP archive.", error: error.message });
   }
 };
 
