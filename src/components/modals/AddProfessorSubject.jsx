@@ -28,7 +28,8 @@ const AddProfessorSubject = ({
       setError("Please select a subject before adding.");
       return;
     }
-    await addProfessorSubject({ professorId, subjectId: selectedSubject });
+    console.log(professorId, selectedSubject);
+    await addProfessorSubject({ id: professorId, subjectId: selectedSubject });
     setSelectedSubject("");
     onClose();
   };

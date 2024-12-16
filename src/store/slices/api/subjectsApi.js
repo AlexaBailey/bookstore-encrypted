@@ -5,15 +5,15 @@ export const subjectsApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5001/api" }),
   endpoints: (builder) => ({
     getSubjects: builder.query({
-      query: () => "/subjects",
+      query: () => "/subject",
     }),
     getSubjectById: builder.query({
-      query: (id) => `/subjects/${id}`,
+      query: (id) => `/subject/${id}`,
     }),
 
     addSubject: builder.mutation({
       query: (newSubject) => ({
-        url: "/subjects",
+        url: "/subject",
         method: "POST",
         body: newSubject,
         headers: {
@@ -24,7 +24,7 @@ export const subjectsApi = createApi({
 
     updateSubject: builder.mutation({
       query: ({ id, ...updatedSubject }) => ({
-        url: `/subjects/${id}`,
+        url: `/subject/${id}`,
         method: "PUT",
         body: updatedSubject,
         headers: {
@@ -35,14 +35,14 @@ export const subjectsApi = createApi({
 
     deleteSubject: builder.mutation({
       query: (id) => ({
-        url: `/subjects/${id}`,
+        url: `/subject/${id}`,
         method: "DELETE",
       }),
     }),
 
     downloadSubjectFile: builder.query({
       query: (id) => ({
-        url: `/subjects/${id}/download`,
+        url: `/subject/${id}/download`,
         responseHandler: (response) => response.blob(),
       }),
     }),

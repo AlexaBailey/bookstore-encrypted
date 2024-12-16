@@ -13,7 +13,6 @@ const ProfessorSchedule = ({ schedule }) => {
           <th className="px-4 py-2 text-left">Subject</th>
           <th className="px-4 py-2 text-left">Group</th>
           <th className="px-4 py-2 text-left">Date</th>
-          <th className="px-4 py-2 text-left">Action</th>
         </tr>
       </thead>
       <tbody>
