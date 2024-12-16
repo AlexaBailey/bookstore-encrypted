@@ -39,7 +39,7 @@ const HistoryPage = () => {
 
       const link = document.createElement("a");
       link.href = url;
-      link.download = "borrowed_books_archive.tar.gz";
+      link.download = "borrowed_books_archive.zip";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

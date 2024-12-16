@@ -336,7 +336,7 @@ export const downloadBorrowedBookRecord = async (req, res) => {
 
     const fileContent = Object.entries(recordDetails)
       .map(([key, value]) => `${key}: ${value}`)
-      .join("\n");
+      .join("\r\n");
 
     res.setHeader("Content-Type", "text/plain");
     res.setHeader(
